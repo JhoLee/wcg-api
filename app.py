@@ -21,7 +21,7 @@ def main():
 @app.route("/upload", methods=["POST"])
 def upload_image():
     # create image directory if not found
-    target = os.path.join(APP_ROOT, 'images')
+    target = os.path.join('~/tmp', 'images')
     if not os.path.isdir(target):
         os.mkdir(target)
     target = os.path.join(target, 'upload/')
@@ -53,7 +53,7 @@ def upload_image():
 
 @app.route('/wordcloud', methods=['POST'])
 def generate_wordcloud():
-    directory_path = os.path.join(APP_ROOT, 'images/')
+    directory_path = os.path.join('~/tmp/', 'images/')
     directory_path = os.path.join(directory_path, 'upload/')
 
     mask_upload = request.files.getlist("mask_image")[0]
@@ -85,13 +85,13 @@ def generate_wordcloud():
 # retrieve file from 'static/images' directory
 @app.route('/static/mask/<filename>')
 def send_image(filename):
-    return send_from_directory("images/upload", filename)
+    return send_from_directory("~/tmp/images/upload", filename)
 
 
 @app.route('/static/wordcloud/<filename>')
 def send_wordcloud(filename):
     print(filename)
-    return send_from_directory("images/wordcloud", filename)
+    return send_from_directory("~/tmp/images/wordcloud", filename)
 
 
 if __name__ == "__main__":
