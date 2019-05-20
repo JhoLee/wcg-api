@@ -1,4 +1,5 @@
 import datetime
+import os
 from random import random
 
 from PIL import Image
@@ -14,27 +15,33 @@ def color_func(word, font_size, position, orientation, random_state=None, **kwar
 
 
 class WCG:
-    def __init__(self, title, data, font, mask_image):
+    def __init__(self, title, data, font, mask_image_path=None):
+        self.mask_image_path = mask_image_path
+
         self.title: str = title
         self.data: list = data
         self.font: str = font
 
-        icon = Image.open(icon_path).comvert("RGBA")
-        self.mask_image = Image.new("RGB", icon.size, (255, 255, 255))
-        self.mask_image.paste(icon, icon)
-        self.mask_image = mask_image.array(mask_image)
+        if self.mask_image_path is not None:
+            self.icon = Image.open(mask_image_path).convert("RGBA")
+            self.mask_image = Image.new("RGB", self.icon.size, (255, 255, 255))
+            self.mask_image.paste(self.icon, self.icon)
+            self.mask_image = np.array(self.mask_image)
 
-        self.save_path = "./images/wordcloud/{title}_{font}.png".format(
+        self.file_name = "{title}_{font}.png".format(
             title=self.title, font=self.font
         )
-        self.result = ""
+        self.save_path = "./images/wordcloud/{file_name}".format(
+            title=self.title, font=self.font, file_name=self.file_name
+        )
         self.background_color = "white"
+        self.result = ""
 
     def generate(self):
-        self.result = WordCloud(font_path=self.font, background_color=self.background_color, mask=self.mask_image,
+        self.result = WordCloud(background_color=self.background_color, mask=self.mask_image,
                                 stopwords=STOPWORDS,
                                 max_font_size=300)
-        coloring = np.array(Image.open(self.mask_image))
+        coloring = np.array(Image.open(self.mask_image_path))
         image_colors = ImageColorGenerator(coloring)
         image_colors.default_color = [0.6, 0.6, 0.6]
 
@@ -48,3 +55,5 @@ class WCG:
         plt.axis("off")
         plt.figure()
         plt.show()
+
+        return self.file_name

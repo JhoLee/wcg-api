@@ -3,6 +3,8 @@ import os
 from flask import Flask, jsonify, request, abort, send_from_directory
 from flask_restful import Api, Resource, reqparse
 
+from wcg import WCG
+
 app = Flask(__name__)
 api = Api(app)
 
@@ -17,15 +19,15 @@ def main():
 
 # upload sected image and foward to processing page
 @app.route("/upload", methods=["POST"])
-def upload():
-    target = os.path.join(APP_ROOT, 'images/upload')
+def upload_image():
+    target = os.path.join(APP_ROOT, 'images/upload/')
 
     # create image directory if not found
     if not os.path.isdir(target):
         os.mkdir(target)
 
     # retrieve file from ..
-    upload = request.files.getlist("file")[0]
+    upload = request.files.getlist("image")[0]
     filename = upload.filename
     print("File name: {filename}".format(filename=filename))
     filename = str(filename).lower()
@@ -33,7 +35,7 @@ def upload():
 
     # file support verification
     extension = os.path.splitext(filename)[1]
-    if (extension == ".jpg") or (extension == ".png") or (extension == ".bmp"):
+    if (extension == ".jpg") or (extension == ".jpeg") or (extension == ".png") or (extension == ".bmp"):
         print("File accepted")
     else:
         return abort(400)
@@ -49,19 +51,44 @@ def upload():
 
 @app.route('/wordcloud', methods=['POST'])
 def generate_wordcloud():
-    mask_image = request.files['mask_image']
+    directory_path = os.path.join(APP_ROOT, 'images/upload/')
+
+    mask_upload = request.files.getlist("mask_image")[0]
+    mask_filename = str(mask_upload.filename).lower()
+    print("File name: {filename}".format(filename=mask_filename))
+
+    extension = os.path.splitext(mask_filename)[1]
+    if (extension == ".jpg") or (extension == ".jpeg") or (extension == ".png") or (extension == ".bmp"):
+        print("File accepted")
+    else:
+        return abort(400)
+
+    # Save file
+    mask_image_path = "".join([directory_path, mask_filename])
+    print(" path : {path}".format(path=mask_image_path))
+    mask_upload.save(mask_image_path)
+
     title = request.form['title']
+    data = request.form['data']
+    font = request.form['font']
 
+    wc = WCG(title=title, data=data, font=font, mask_image_path=mask_image_path)
+    wordCloud_path = wc.generate()
 
-
-    print(mask_image)
-    return ""
+    print(wordCloud_path)
+    return send_wordcloud(wordCloud_path)
 
 
 # retrieve file from 'static/images' directory
-@app.route('/static/images/<filename>')
+@app.route('/static/mask/<filename>')
 def send_image(filename):
     return send_from_directory("images/upload", filename)
+
+
+@app.route('/static/wordcloud/<filename>')
+def send_wordcloud(filename):
+    print(filename)
+    return send_from_directory("images/wordcloud", filename)
 
 
 # TODO: 걍 이미지의 주소를 전달해서 클라이언트가 읽도록 하자... json으로 response
