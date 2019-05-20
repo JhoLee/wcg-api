@@ -20,9 +20,11 @@ def main():
 # upload sected image and foward to processing page
 @app.route("/upload", methods=["POST"])
 def upload_image():
-    target = os.path.join(APP_ROOT, 'images/upload/')
-
     # create image directory if not found
+    target = os.path.join(APP_ROOT, 'images')
+    if not os.path.isdir(target):
+        os.mkdir(target)
+    target = os.path.join(target, 'upload/')
     if not os.path.isdir(target):
         os.mkdir(target)
 
@@ -51,7 +53,8 @@ def upload_image():
 
 @app.route('/wordcloud', methods=['POST'])
 def generate_wordcloud():
-    directory_path = os.path.join(APP_ROOT, 'images/upload/')
+    directory_path = os.path.join(APP_ROOT, 'images/')
+    directory_path = os.path.join(directory_path, 'upload/')
 
     mask_upload = request.files.getlist("mask_image")[0]
     mask_filename = str(mask_upload.filename).lower()
@@ -90,8 +93,6 @@ def send_wordcloud(filename):
     print(filename)
     return send_from_directory("images/wordcloud", filename)
 
-
-# TODO: 걍 이미지의 주소를 전달해서 클라이언트가 읽도록 하자... json으로 response
 
 if __name__ == "__main__":
     app.run(debug=True, host='', port=8000)
