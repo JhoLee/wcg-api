@@ -95,4 +95,4 @@ def send_wordcloud(filename):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='', port=8000)
+    app.run()
