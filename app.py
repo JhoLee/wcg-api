@@ -54,23 +54,27 @@ def upload_image():
 
 @app.route('/wordcloud', methods=['POST'])
 def generate_wordcloud():
+   
     directory_path = os.path.join(APP_ROOT, 'images/')
     directory_path = os.path.join(directory_path, 'upload/')
 
     mask_upload = request.files.getlist("mask_image")[0]
-    mask_filename = str(mask_upload.filename).lower()
-    print("File name: {filename}".format(filename=mask_filename))
-
-    extension = os.path.splitext(mask_filename)[1]
-    if (extension == ".jpg") or (extension == ".jpeg") or (extension == ".png") or (extension == ".bmp"):
-        print("File accepted")
+    if mask_upload == null:
+        mask_image_path = ""
     else:
-        return abort(400)
+        mask_filename = str(mask_upload.filename).lower()
+        print("File name: {filename}".format(filename=mask_filename))
 
-    # Save file
-    mask_image_path = "".join([directory_path, mask_filename])
-    print(" path : {path}".format(path=mask_image_path))
-    mask_upload.save(mask_image_path)
+        extension = os.path.splitext(mask_filename)[1]
+        if (extension == ".jpg") or (extension == ".jpeg") or (extension == ".png") or (extension == ".bmp"):
+            print("File accepted")
+        else:
+            return abort(400)
+
+        # Save file
+        mask_image_path = "".join([directory_path, mask_filename])
+        print(" path : {path}".format(path=mask_image_path))
+        mask_upload.save(mask_image_path)
 
     title = request.form['title']
     data = request.form['data']
