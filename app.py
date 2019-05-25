@@ -58,10 +58,10 @@ def generate_wordcloud():
     directory_path = os.path.join(APP_ROOT, 'images/')
     directory_path = os.path.join(directory_path, 'upload/')
 
-    mask_upload = request.files.getlist("mask_image")[0]
-    if mask_upload == null:
-        mask_image_path = ""
+    if len(request.files.getlist("mask_image")) <= 0:
+        mask_image_path = None
     else:
+        mask_upload = request.files.getlist("mask_image")[0]
         mask_filename = str(mask_upload.filename).lower()
         print("File name: {filename}".format(filename=mask_filename))
 
