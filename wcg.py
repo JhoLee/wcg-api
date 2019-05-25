@@ -5,7 +5,6 @@ from random import random
 from PIL import Image
 import numpy as np
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
-from matplotlib import pyplot as plt
 
 from palettable.colorbrewer.qualitative import *
 
@@ -18,9 +17,9 @@ class WCG:
     def __init__(self, title, data, font, mask_image_path=None):
         self.mask_image_path = mask_image_path
 
-        self.title: str = title
-        self.data: list = data
-        self.font: str = font
+        self.title = title
+        self.data = data
+        self.font = font
 
         if self.mask_image_path is not None:
             self.icon = Image.open(mask_image_path).convert("RGBA")
@@ -51,9 +50,5 @@ class WCG:
 
         print('Result saved to \"{}"'.format(self.save_path))
 
-        plt.imshow(self.result, interpolation='bilinear')
-        plt.axis("off")
-        plt.figure()
-        plt.show()
 
         return self.file_name

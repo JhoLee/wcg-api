@@ -1,3 +1,4 @@
+import json
 import os
 
 from flask import Flask, jsonify, request, abort, send_from_directory
@@ -21,7 +22,7 @@ def main():
 @app.route("/upload", methods=["POST"])
 def upload_image():
     # create image directory if not found
-    target = os.path.join('~/tmp', 'images')
+    target = os.path.join(APP_ROOT, 'images')
     if not os.path.isdir(target):
         os.mkdir(target)
     target = os.path.join(target, 'upload/')
@@ -53,7 +54,7 @@ def upload_image():
 
 @app.route('/wordcloud', methods=['POST'])
 def generate_wordcloud():
-    directory_path = os.path.join('~/tmp/', 'images/')
+    directory_path = os.path.join(APP_ROOT, 'images/')
     directory_path = os.path.join(directory_path, 'upload/')
 
     mask_upload = request.files.getlist("mask_image")[0]
@@ -85,14 +86,36 @@ def generate_wordcloud():
 # retrieve file from 'static/images' directory
 @app.route('/static/mask/<filename>')
 def send_image(filename):
-    return send_from_directory("~/tmp/images/upload", filename)
+    return send_from_directory("images/upload", filename)
 
 
 @app.route('/static/wordcloud/<filename>')
 def send_wordcloud(filename):
     print(filename)
-    return send_from_directory("~/tmp/images/wordcloud", filename)
+    return send_from_directory("images/wordcloud", filename)
 
+
+@app.route('/static/font/<filename>', methods=['GET'])
+def send_font(filename):
+    print("send_font: " + filename)
+    return send_from_directory("fonts/static", filename=filename)
+
+
+@app.route('/static/font/', methods=['GET'])
+def send_font_list():
+    print("send_font_list")
+    font_dir = './fonts/static'
+    font_file_list = os.listdir(font_dir)
+    font_list = []
+    for font_file in font_file_list:
+        font = {"name":font_file.replace('.ttc', '').replace('.ttf', '').replace('.otf', ''),"path": font_file}
+        font_list.append(font)
+    print('font_list created.')
+
+    font_json = jsonify(font_list)
+    print('font_json created.')
+
+    return font_json
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=False, host='0.0.0.0', port=5000)
