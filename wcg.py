@@ -26,6 +26,8 @@ class WCG:
             self.mask_image = Image.new("RGB", self.icon.size, (255, 255, 255))
             self.mask_image.paste(self.icon, self.icon)
             self.mask_image = np.array(self.mask_image)
+        else:
+            self.mask_image = None
 
         self.file_name = "{title}_{font}.png".format(
             title=self.title, font=self.font
@@ -40,12 +42,14 @@ class WCG:
         self.result = WordCloud(background_color=self.background_color, mask=self.mask_image,
                                 stopwords=STOPWORDS,
                                 max_font_size=300)
-        coloring = np.array(Image.open(self.mask_image_path))
-        image_colors = ImageColorGenerator(coloring)
-        image_colors.default_color = [0.6, 0.6, 0.6]
-
         self.result.generate_from_text(self.data)
-        self.result.recolor(None, image_colors)
+
+        if self.mask_image_path is not None:
+            coloring = np.array(Image.open(self.mask_image_path))
+            image_colors = ImageColorGenerator(coloring)
+            image_colors.default_color = [0.6, 0.6, 0.6]
+            self.result.recolor(None, image_colors)
+
         self.result.to_file(self.save_path)
 
         print('Result saved to \"{}"'.format(self.save_path))
